@@ -653,6 +653,13 @@ def test_get_hrv2_offers():
     assert hr.get_offer(1) == hr_dict[u'offer'], hr.get_offer(1)
  
 @patch('urllib2.urlopen', patched_urlopen_hr)  
+def test_post_hrv2_job():
+    hr = get_client().hr           
+    #test add_job
+    result = hr.post_job({'title':'title', 'job_type':'job_type', 'description':'description'})
+    assert result == hr_dict, result
+
+@patch('urllib2.urlopen', patched_urlopen_hr)  
 def test_get_hrv2_engagements():
     hr = get_client().hr 
     #test get_engagements
