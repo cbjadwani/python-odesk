@@ -625,11 +625,17 @@ class Provider(Namespace):
                              }
 
     def get_provider(self, provider_ciphertext):
+        if isinstance(provider_ciphertext, (list, tuple)):
+            provider_ciphertext = map(str, provider_ciphertext)
+            provider_ciphertext = ';'.join(provider_ciphertext[:20])
         url = 'providers/%s' % str(provider_ciphertext)
         result = self.get(url)
         return result['profile']
 
     def get_provider_brief(self, provider_ciphertext):
+        if isinstance(provider_ciphertext, (list, tuple)):
+            provider_ciphertext = map(str, provider_ciphertext)
+            provider_ciphertext = ';'.join(provider_ciphertext[:20])
         url = 'providers/%s/brief' % str(provider_ciphertext)
         result = self.get(url)
         return result['profile']
@@ -770,13 +776,14 @@ class Messages(Namespace):
 
     def put_threads_read_unread(self, username, thread_ids, read=True):
         """thread_ids must be a list, even of 1 item"""
-        url = 'threads/%s/' % str(username)
+        if isinstance(thread_ids, (list, tuple)):
+            thread_ids = ';'.join(map(str, thread_ids))
+        url = 'threads/%s/%s' % (username, thread_ids)
         if read:
             data = {'read': 'true'}
         else:
             data = {'read': 'false'}
-        result = self.put(self._generate_many_threads_url(url, thread_ids),
-                          data=data)
+        result = self.put(url, data=data)
         return result
 
     def put_threads_read(self, username, thread_ids):
@@ -788,15 +795,16 @@ class Messages(Namespace):
     def put_threads_starred_or_unstarred(self, username, thread_ids,
                                          starred=True):
         """thread_ids must be a list, even of 1 item"""
-        url = 'threads/%s/' % str(username)
+        if isinstance(thread_ids, (list, tuple)):
+            thread_ids = ';'.join(map(str, thread_ids))
+        url = 'threads/%s/%s' % (username, thread_ids)
 
         if starred:
             data = {'starred': 'true'}
         else:
             data = {'starred': 'false'}
 
-        result = self.put(self._generate_many_threads_url(url, thread_ids),
-                          data=data)
+        result = self.put(url, data=data)
         return result
 
     def put_threads_starred(self, username, thread_ids):
@@ -810,15 +818,16 @@ class Messages(Namespace):
     def put_threads_deleted_or_undeleted(self, username, thread_ids,
                                          deleted=True):
         """thread_ids must be a list, even of 1 item"""
-        url = 'threads/%s/' % str(username)
+        if isinstance(thread_ids, (list, tuple)):
+            thread_ids = ';'.join(map(str, thread_ids))
+        url = 'threads/%s/%s' % (username, thread_ids)
 
         if deleted:
             data = {'deleted': 'true'}
         else:
             data = {'deleted': 'false'}
 
-        result = self.put(self._generate_many_threads_url(url, thread_ids),
-                          data=data)
+        result = self.put(url, data=data)
         return result
 
     def put_threads_deleted(self, username, thread_ids):
@@ -891,23 +900,27 @@ class OTask(Namespace):
         return new_url
 
     def get_company_specific_tasks(self, company_id, task_codes):
-        url = 'tasks/companies/%s/tasks/%s' % (str(company_id),
-                                    self._generate_many_tasks_url(task_codes))
+        if isinstance(task_codes, (list, tuple)):
+            task_codes = ';'.join(map(str, task_codes))
+        url = 'tasks/companies/%s/tasks/%s' % (company_id, task_codes)
         result = self.get(url)
         return result["tasks"]
 
     def get_team_specific_tasks(self, company_id, team_id, task_codes):
+        if isinstance(task_codes, (list, tuple)):
+            task_codes = ';'.join(map(str, task_codes))
         url = 'tasks/companies/%s/teams/%s/tasks/%s' %\
-                                             (str(company_id), str(team_id),
-                                    self._generate_many_tasks_url(task_codes))
+                                (company_id, team_id, task_codes)
+
         result = self.get(url)
         return result["tasks"]
 
     def get_user_specific_tasks(self, company_id, team_id, user_id,
                                 task_codes):
+        if isinstance(task_codes, (list, tuple)):
+            task_codes = ';'.join(map(str, task_codes))
         url = 'tasks/companies/%s/teams/%s/users/%s/tasks/%s' %\
-                                (str(company_id), str(team_id), str(user_id),
-                                 self._generate_many_tasks_url(task_codes))
+                                (company_id, team_id, user_id, task_codes)
         result = self.get(url)
         return result["tasks"]
 
@@ -966,19 +979,23 @@ class OTask(Namespace):
         return result
 
     def delete_company_task(self, company_id, task_codes):
-        url = 'tasks/companies/%s/tasks/%s' % (str(company_id),
-                                    self._generate_many_tasks_url(task_codes))
+        if isinstance(task_codes, (list, tuple)):
+            task_codes = ';'.join(map(str, task_codes))
+        url = 'tasks/companies/%s/tasks/%s' % (company_id, task_codes)
         return self.delete(url, {})
 
     def delete_team_task(self, company_id, team_id, task_codes):
-        url = 'tasks/companies/%s/teams/%s/tasks/%s' % (str(company_id),
-                    str(team_id), self._generate_many_tasks_url(task_codes))
+        if isinstance(task_codes, (list, tuple)):
+            task_codes = ';'.join(map(str, task_codes))
+        url = 'tasks/companies/%s/teams/%s/tasks/%s' %\
+                                (company_id, team_id, task_codes)
         return self.delete(url, {})
 
     def delete_user_task(self, company_id, team_id, user_id, task_codes):
+        if isinstance(task_codes, (list, tuple)):
+            task_codes = ';'.join(map(str, task_codes))
         url = 'tasks/companies/%s/teams/%s/users/%s/tasks/%s' %\
-                                 (str(company_id), str(team_id), str(user_id),
-                                 self. _generate_many_tasks_url(task_codes))
+                                 (company_id, team_id, user_id, task_codes)
         return self.delete(url, {})
 
     def delete_all_company_tasks(self, company_id):
