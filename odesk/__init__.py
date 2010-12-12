@@ -134,15 +134,21 @@ class BaseClient(object):
         self.secret_key = secret_key
         self.api_token = api_token
 
-    def urlencode(self, data={}):
-        data = data.copy()
+    def urlencode(self, data=None):
+        if data is None:
+            data = {}
+        else:
+            data = data.copy()
         data['api_key'] = self.public_key
         if self.api_token:
             data['api_token'] = self.api_token
         return signed_urlencode(self.secret_key, data)
 
-    def urlopen(self, url, data={}, method='GET'):
-        data = data.copy()
+    def urlopen(self, url, data=None, method='GET'):
+        if data is None:
+            data = {}
+        else:
+            data = data.copy()
 
         #FIXME: Http method hack. Should be removed once oDesk supports true
         #HTTP methods
@@ -163,11 +169,13 @@ class BaseClient(object):
             request = HttpRequest(url=url, data=query, method=method)
         return urllib2.urlopen(request)
 
-    def read(self, url, data={}, method='GET', format='json'):
+    def read(self, url, data=None, method='GET', format='json'):
         """
         Returns parsed Python object or raises an error
         """
         assert format == 'json', "Only JSON format is supported at the moment"
+        if data is None:
+            data = {}
         url += '.' + format
         try:
             response = self.urlopen(url, data, method)
@@ -204,16 +212,24 @@ class Client(BaseClient):
         self.oconomy = OConomy(self)
 
     #Shortcuts for HTTP methods
-    def get(self, url, data={}):
+    def get(self, url, data=None):
+        if data is None:
+            data = {}
         return self.read(url, data, method='GET', format=self.format)
 
-    def post(self, url, data={}):
+    def post(self, url, data=None):
+        if data is None:
+            data = {}
         return self.read(url, data, method='POST', format=self.format)
 
-    def put(self, url, data={}):
+    def put(self, url, data=None):
+        if data is None:
+            data = {}
         return self.read(url, data, method='PUT', format=self.format)
 
-    def delete(self, url, data={}):
+    def delete(self, url, data=None):
+        if data is None:
+            data = {}
         return self.read(url, data, method='DELETE', format=self.format)
  
 
@@ -236,16 +252,24 @@ class Namespace(object):
         return "%s%sv%d/%s" % (self.base_url, self.api_url, self.version, url)
 
     #Proxied client's methods
-    def get(self, url, data={}):
+    def get(self, url, data=None):
+        if data is None:
+            data = {}
         return self.client.get(self.full_url(url), data)
 
-    def post(self, url, data={}):
+    def post(self, url, data=None):
+        if data is None:
+            data = {}
         return self.client.post(self.full_url(url), data)
 
-    def put(self, url, data={}):
+    def put(self, url, data=None):
+        if data is None:
+            data = {}
         return self.client.put(self.full_url(url), data)
 
-    def delete(self, url, data={}):
+    def delete(self, url, data=None):
+        if data is None:
+            data = {}
         return self.client.delete(self.full_url(url), data)
 
 
@@ -1064,8 +1088,11 @@ class Url(Namespace):
 class GdsNamespace(Namespace):
     base_url = 'https://www.odesk.com/gds/'
 
-    def urlopen(self, url, data={}, method='GET'):
-        data = data.copy()
+    def urlopen(self, url, data=None, method='GET'):
+        if data is None:
+            data = {}
+        else:
+            data = data.copy()
         query = self.client.urlencode(data)
         if method == 'GET':
             url += '?' + query
@@ -1073,10 +1100,12 @@ class GdsNamespace(Namespace):
             return urllib2.urlopen(request)
         return None
 
-    def read(self, url, data={}, method='GET'):
+    def read(self, url, data=None, method='GET'):
         """
         Returns parsed Python object or raises an error
         """
+        if data is None:
+            data = {}
         try:
             response = self.urlopen(url, data, method)
         except urllib2.HTTPError, e:
@@ -1085,7 +1114,9 @@ class GdsNamespace(Namespace):
         result = json.loads(response.read())
         return result
 
-    def get(self, url, data={}):
+    def get(self, url, data=None):
+        if data is None:
+            data = {}
         return self.read(self.full_url(url), data, method='GET')
 
 
@@ -1211,7 +1242,9 @@ class NonauthGdsNamespace(GdsNamespace):
         to request urls (api_sig, api_key & api_token)
         Some APIs return error if called with authentication parameters
     '''
-    def urlopen(self, url, data={}, method='GET'):
+    def urlopen(self, url, data=None, method='GET'):
+        if data is None:
+            data = {}
         if method == 'GET':
             request = HttpRequest(url=url, data=data.copy(), method=method)
             return urllib2.urlopen(request)
